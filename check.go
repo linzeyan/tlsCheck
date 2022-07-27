@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"io"
 	"log"
 	"os"
@@ -45,9 +46,15 @@ func CheckByFile(fileName string) ([]*x509.Certificate, error) {
 	}
 	buf = buf[0:t]
 	crtPem, _ := pem.Decode(buf)
-	crt, err := x509.ParseCertificates(crtPem.Bytes)
+	if crtPem == nil {
+		return nil, errors.New("file type not correct")
+	}
+	cert, err := x509.ParseCertificates(crtPem.Bytes)
 	if err != nil {
 		return nil, err
 	}
-	return crt, nil
+	if cert == nil {
+		return nil, errors.New("can not correctly parse")
+	}
+	return cert, nil
 }
